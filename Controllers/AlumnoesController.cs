@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +26,7 @@ namespace ControlEscolarWeb.Controllers
         }
 
         // GET: Alumnoes/Details/5
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -34,7 +34,7 @@ namespace ControlEscolarWeb.Controllers
             }
 
             var alumno = await _context.Alumnos
-                .FirstOrDefaultAsync(m => m.Matricula == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (alumno == null)
             {
                 return NotFound();
@@ -50,23 +50,41 @@ namespace ControlEscolarWeb.Controllers
         }
 
         // POST: Alumnoes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Matricula,NombreCompleto,Curp,Horario,Campus,Telefono,Correo,Estatus")] Alumno alumno)
+        public async Task<IActionResult> Create([Bind("Id,Matricula,NombreCompleto,Curp,FechaNacimiento,Genero,CalleNumero,Colonia,CodigoPostal,MunicipioEntidad,Horario,Campus,FechaRegistro,Telefono,Correo,Estatus")] Alumno alumno)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(alumno);
                 await _context.SaveChangesAsync();
+                
+                // Initialize 8 default modules
+                string[] nombresModulos = new string[] 
+                {
+                    "ESPAÑOL", "MATEMÁTICAS", "QUÍMICA", "FÍSICA", 
+                    "HISTORIA UNIVERSAL (HIST UNIVR)", "HISTORIA DE MÉXICO (HIST MEXICO)", "BIOLOGÍA", "INGLÉS"
+                };
+
+                for (int i = 0; i < nombresModulos.Length; i++)
+                {
+                    _context.CalificacionesModulos.Add(new CalificacionModulo
+                    {
+                        AlumnoId = alumno.Id,
+                        NumeroModulo = i + 1,
+                        NombreModulo = nombresModulos[i]
+                    });
+                }
+                
+                await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
             return View(alumno);
         }
 
         // GET: Alumnoes/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
@@ -82,13 +100,11 @@ namespace ControlEscolarWeb.Controllers
         }
 
         // POST: Alumnoes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Matricula,NombreCompleto,Curp,Horario,Campus,Telefono,Correo,Estatus")] Alumno alumno)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Matricula,NombreCompleto,Curp,FechaNacimiento,Genero,CalleNumero,Colonia,CodigoPostal,MunicipioEntidad,Horario,Campus,FechaRegistro,Telefono,Correo,Estatus")] Alumno alumno)
         {
-            if (id != alumno.Matricula)
+            if (id != alumno.Id)
             {
                 return NotFound();
             }
@@ -102,7 +118,7 @@ namespace ControlEscolarWeb.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!AlumnoExists(alumno.Matricula))
+                    if (!AlumnoExists(alumno.Id))
                     {
                         return NotFound();
                     }
@@ -117,7 +133,7 @@ namespace ControlEscolarWeb.Controllers
         }
 
         // GET: Alumnoes/Delete/5
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
@@ -125,7 +141,7 @@ namespace ControlEscolarWeb.Controllers
             }
 
             var alumno = await _context.Alumnos
-                .FirstOrDefaultAsync(m => m.Matricula == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (alumno == null)
             {
                 return NotFound();
@@ -137,7 +153,7 @@ namespace ControlEscolarWeb.Controllers
         // POST: Alumnoes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var alumno = await _context.Alumnos.FindAsync(id);
             if (alumno != null)
@@ -149,9 +165,9 @@ namespace ControlEscolarWeb.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool AlumnoExists(string id)
+        private bool AlumnoExists(int id)
         {
-            return _context.Alumnos.Any(e => e.Matricula == id);
+            return _context.Alumnos.Any(e => e.Id == id);
         }
     }
 }

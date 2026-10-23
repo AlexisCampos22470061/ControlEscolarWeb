@@ -1,60 +1,136 @@
-﻿@model ControlEscolarWeb.Models.Alumno
+@model ControlEscolarWeb.Models.Alumno
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles del Alumno";
 }
 
-<h1>Details</h1>
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">Detalles del Expediente</h1>
+            <p class="text-sm text-slate-500 mt-1">Información completa del alumno.</p>
+        </div>
+        <div class="flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm border border-indigo-200">
+                <i class="fa-solid fa-pen-to-square text-xs"></i>
+                <span>Editar</span>
+            </a>
+            <a asp-action="Index" class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm border border-slate-200">
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+                <span>Directorio</span>
+            </a>
+        </div>
+    </div>
 
-<div>
-    <h4>Alumno</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NombreCompleto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NombreCompleto)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Curp)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Curp)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Horario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Horario)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Campus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Campus)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Telefono)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Telefono)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Correo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Correo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Estatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Estatus)
-        </dd>
-    </dl>
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        
+        <!-- Header del perfil -->
+        <div class="p-6 sm:p-8 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900">@Html.DisplayFor(model => model.NombreCompleto)</h2>
+                <div class="mt-2 flex flex-wrap items-center gap-3">
+                    <span class="text-indigo-700 font-mono font-bold bg-indigo-100 px-3 py-1 rounded-lg text-sm border border-indigo-200">
+                        <i class="fa-solid fa-id-card mr-1"></i> @(Model.Matricula ?? "Sin Matrícula")
+                    </span>
+                    @{
+                        var est = Model.Estatus?.ToUpper() ?? "ACTIVO";
+                        var badgeColor = est switch {
+                            "ACTIVO" => "bg-emerald-50 text-emerald-700 border-emerald-200",
+                            "INACTIVO" => "bg-rose-50 text-rose-700 border-rose-200",
+                            "EN ESPERA" => "bg-amber-50 text-amber-700 border-amber-200",
+                            _ => "bg-slate-100 text-slate-600 border-slate-200"
+                        };
+                    }
+                    <span class="px-3 py-1 rounded-lg text-sm font-bold border @badgeColor">
+                        @est
+                    </span>
+                </div>
+            </div>
+            <div class="text-right text-xs text-slate-500 font-medium">
+                Registrado el:<br/>
+                <span class="text-slate-800 text-sm font-bold">@Model.FechaRegistro.ToString("dd MMM yyyy")</span>
+            </div>
+        </div>
+
+        <div class="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <!-- Bloque 1 -->
+            <div class="space-y-5">
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">Identificación Oficial</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">CURP</p>
+                            <p class="text-sm font-semibold text-slate-900 font-mono">@(string.IsNullOrWhiteSpace(Model.Curp) ? "N/A" : Model.Curp)</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">Fecha Nacimiento</p>
+                            <p class="text-sm font-semibold text-slate-900">@(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "N/A")</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">Género</p>
+                            <p class="text-sm font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(Model.Genero) ? "N/A" : Model.Genero)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">Datos Escolares</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">Campus / Sede</p>
+                            <p class="text-sm font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(Model.Campus) ? "N/A" : Model.Campus)</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">Horario / Turno</p>
+                            <p class="text-sm font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(Model.Horario) ? "N/A" : Model.Horario)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque 2 -->
+            <div class="space-y-5">
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">Domicilio</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">Calle y Número</p>
+                            <p class="text-sm font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(Model.CalleNumero) ? "N/A" : Model.CalleNumero)</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-slate-500 mb-0.5">Colonia</p>
+                                <p class="text-sm font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(Model.Colonia) ? "N/A" : Model.Colonia)</p>
+                            </div>
+                            <div>
+                                <p class="text-xs text-slate-500 mb-0.5">C.P.</p>
+                                <p class="text-sm font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(Model.CodigoPostal) ? "N/A" : Model.CodigoPostal)</p>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">Municipio / Entidad</p>
+                            <p class="text-sm font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(Model.MunicipioEntidad) ? "N/A" : Model.MunicipioEntidad)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">Contacto</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">Teléfono</p>
+                            <p class="text-sm font-semibold text-slate-900">@(string.IsNullOrWhiteSpace(Model.Telefono) ? "N/A" : Model.Telefono)</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 mb-0.5">Correo Electrónico</p>
+                            <p class="text-sm font-semibold text-slate-900 truncate" title="@Model.Correo">@(string.IsNullOrWhiteSpace(Model.Correo) ? "N/A" : Model.Correo)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Matricula">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+

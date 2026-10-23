@@ -17,18 +17,35 @@ namespace ControlEscolarWeb.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.23")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("ControlEscolarWeb.Models.Alumno", b =>
                 {
-                    b.Property<string>("Matricula")
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CalleNumero")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Campus")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CodigoPostal")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Colonia")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -48,10 +65,30 @@ namespace ControlEscolarWeb.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<DateTime?>("FechaNacimiento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaRegistro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Genero")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
                     b.Property<string>("Horario")
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Matricula")
+                        .HasMaxLength(25)
+                        .HasColumnType("nvarchar(25)");
+
+                    b.Property<string>("MunicipioEntidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("NombreCompleto")
                         .IsRequired()
@@ -63,46 +100,9 @@ namespace ControlEscolarWeb.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
-                    b.HasKey("Matricula");
+                    b.HasKey("Id");
 
-                    b.HasIndex("NombreCompleto");
-
-                    b.ToTable("Alumnos");
-
-                    b.HasData(
-                        new
-                        {
-                            Matricula = "24286000031",
-                            Campus = "Campus Noceda",
-                            Correo = "campos.rafael@prepa.edu.mx",
-                            Curp = "CABL950611HCCMRS06",
-                            Estatus = "ACTIVO",
-                            Horario = "Sábado Matutino (Ceneval)",
-                            NombreCompleto = "CAMPOS BERZUNZA LUIS RAFAEL",
-                            Telefono = "981 123 4567"
-                        },
-                        new
-                        {
-                            Matricula = "24286000063",
-                            Campus = "Campus Noceda",
-                            Correo = "ceballos.rodrigo@prepa.edu.mx",
-                            Curp = "CEPR060910HCCBCDA9",
-                            Estatus = "ACTIVO",
-                            Horario = "L-M-V Vespertino",
-                            NombreCompleto = "CEBALLOS PACHECO RODRIGO AUGUSTO",
-                            Telefono = "981 987 6543"
-                        },
-                        new
-                        {
-                            Matricula = "260431000080",
-                            Campus = "0431 - Col. Profesional",
-                            Correo = "america.robert@hotmail.com",
-                            Curp = "COCS070927MMCVHL01",
-                            Estatus = "ACTIVO",
-                            Horario = "Martes y Jueves - Matutino",
-                            NombreCompleto = "COVARRUBIAS CHE SILVIA PAOLA",
-                            Telefono = "981 111 1159"
-                        });
+                    b.ToTable("Alumnos", (string)null);
                 });
 
             modelBuilder.Entity("ControlEscolarWeb.Models.CalificacionModulo", b =>
@@ -113,13 +113,11 @@ namespace ControlEscolarWeb.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AlumnoId")
+                        .HasColumnType("int");
+
                     b.Property<decimal?>("Calificacion")
                         .HasColumnType("decimal(4,2)");
-
-                    b.Property<string>("MatriculaAlumno")
-                        .IsRequired()
-                        .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)");
 
                     b.Property<string>("NombreModulo")
                         .IsRequired()
@@ -136,234 +134,17 @@ namespace ControlEscolarWeb.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MatriculaAlumno");
+                    b.HasIndex("AlumnoId", "NumeroModulo")
+                        .IsUnique();
 
-                    b.ToTable("CalificacionesModulos");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000031",
-                            NombreModulo = "Matemáticas",
-                            NumeroModulo = 1,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Calificacion = 9.0m,
-                            MatriculaAlumno = "24286000031",
-                            NombreModulo = "Español y Habilidad Lectora",
-                            NumeroModulo = 2,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000031",
-                            NombreModulo = "Física",
-                            NumeroModulo = 3,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000031",
-                            NombreModulo = "Química",
-                            NumeroModulo = 4,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000031",
-                            NombreModulo = "Biología",
-                            NumeroModulo = 5,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Calificacion = 9.0m,
-                            MatriculaAlumno = "24286000031",
-                            NombreModulo = "Historia de México",
-                            NumeroModulo = 6,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000031",
-                            NombreModulo = "Historia Universal y Sociedad",
-                            NumeroModulo = 7,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000031",
-                            NombreModulo = "Inglés",
-                            NumeroModulo = 8,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "260431000080",
-                            NombreModulo = "Matemáticas",
-                            NumeroModulo = 1,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Calificacion = 9.0m,
-                            MatriculaAlumno = "260431000080",
-                            NombreModulo = "Español y Habilidad Lectora",
-                            NumeroModulo = 2,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Calificacion = 7.0m,
-                            MatriculaAlumno = "260431000080",
-                            NombreModulo = "Física",
-                            NumeroModulo = 3,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "260431000080",
-                            NombreModulo = "Química",
-                            NumeroModulo = 4,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "260431000080",
-                            NombreModulo = "Biología",
-                            NumeroModulo = 5,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            Calificacion = 9.0m,
-                            MatriculaAlumno = "260431000080",
-                            NombreModulo = "Historia de México",
-                            NumeroModulo = 6,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "260431000080",
-                            NombreModulo = "Historia Universal y Sociedad",
-                            NumeroModulo = 7,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 16,
-                            Calificacion = 9.0m,
-                            MatriculaAlumno = "260431000080",
-                            NombreModulo = "Inglés",
-                            NumeroModulo = 8,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 17,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000063",
-                            NombreModulo = "Matemáticas",
-                            NumeroModulo = 1,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 18,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000063",
-                            NombreModulo = "Español y Habilidad Lectora",
-                            NumeroModulo = 2,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 19,
-                            Calificacion = 7.0m,
-                            MatriculaAlumno = "24286000063",
-                            NombreModulo = "Física",
-                            NumeroModulo = 3,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 20,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000063",
-                            NombreModulo = "Química",
-                            NumeroModulo = 4,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 21,
-                            Calificacion = 9.0m,
-                            MatriculaAlumno = "24286000063",
-                            NombreModulo = "Biología",
-                            NumeroModulo = 5,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 22,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000063",
-                            NombreModulo = "Historia de México",
-                            NumeroModulo = 6,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 23,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000063",
-                            NombreModulo = "Historia Universal y Sociedad",
-                            NumeroModulo = 7,
-                            TipoAplicacion = "Ordinario"
-                        },
-                        new
-                        {
-                            Id = 24,
-                            Calificacion = 8.0m,
-                            MatriculaAlumno = "24286000063",
-                            NombreModulo = "Inglés",
-                            NumeroModulo = 8,
-                            TipoAplicacion = "Ordinario"
-                        });
+                    b.ToTable("CalificacionesModulos", (string)null);
                 });
 
             modelBuilder.Entity("ControlEscolarWeb.Models.CalificacionModulo", b =>
                 {
                     b.HasOne("ControlEscolarWeb.Models.Alumno", "Alumno")
                         .WithMany("Calificaciones")
-                        .HasForeignKey("MatriculaAlumno")
+                        .HasForeignKey("AlumnoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

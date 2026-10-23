@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ControlEscolarWeb.Models.Alumno>
+@model IEnumerable<ControlEscolarWeb.Models.Alumno>
 
 @{
     ViewData["Title"] = "Directorio de Alumnos";
@@ -67,7 +67,7 @@
                                     @Html.DisplayFor(modelItem => item.NombreCompleto)
                                 </div>
                                 <div class="text-xs font-mono font-semibold text-indigo-700 mt-0.5">
-                                    <i class="fa-solid fa-id-card text-[10px] mr-1 text-slate-400"></i>@item.Matricula
+                                    <i class="fa-solid fa-id-card text-[10px] mr-1 text-slate-400"></i>@(item.Matricula ?? "Sin Matrícula")
                                 </div>
                             </td>
 
@@ -142,17 +142,17 @@
                             <!-- Acciones -->
                             <td class="py-3.5 px-4 text-center">
                                 <div class="inline-flex items-center gap-1">
-                                    <a asp-action="Edit" asp-route-id="@item.Matricula"
+                                    <a asp-action="Edit" asp-route-id="@item.Id"
                                        title="Editar"
                                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition border border-transparent hover:border-indigo-200">
                                         <i class="fa-solid fa-pen-to-square text-xs"></i>
                                     </a>
-                                    <a asp-action="Details" asp-route-id="@item.Matricula"
+                                    <a asp-action="Details" asp-route-id="@item.Id"
                                        title="Ver Detalles"
                                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition border border-transparent hover:border-emerald-200">
                                         <i class="fa-solid fa-eye text-xs"></i>
                                     </a>
-                                    <a asp-action="Delete" asp-route-id="@item.Matricula"
+                                    <a asp-action="Delete" asp-route-id="@item.Id"
                                        title="Eliminar"
                                        class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition border border-transparent hover:border-rose-200">
                                         <i class="fa-solid fa-trash-can text-xs"></i>

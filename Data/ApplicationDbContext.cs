@@ -17,6 +17,11 @@ namespace ControlEscolarWeb.Data
             // Mapear nombres de tablas explícitamente para que coincidan con tus scripts/consultas
             modelBuilder.Entity<Alumno>().ToTable("Alumnos");
             modelBuilder.Entity<CalificacionModulo>().ToTable("CalificacionesModulos");
+
+            // Restricción de Unicidad
+            modelBuilder.Entity<CalificacionModulo>()
+                .HasIndex(c => new { c.AlumnoId, c.NumeroModulo })
+                .IsUnique();
         }
     }
 }

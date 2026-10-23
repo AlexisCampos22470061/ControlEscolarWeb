@@ -9,10 +9,9 @@ namespace ControlEscolarWeb.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(25)]
-        public string MatriculaAlumno { get; set; } = string.Empty;
+        public int AlumnoId { get; set; }
 
-        [ForeignKey(nameof(MatriculaAlumno))]
+        [ForeignKey(nameof(AlumnoId))]
         public virtual Alumno? Alumno { get; set; }
 
         public int NumeroModulo { get; set; } // 1 al 8
