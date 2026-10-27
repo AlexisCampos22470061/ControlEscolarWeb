@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Detalles del Alumno";
+    var modulos = Model.Calificaciones?.OrderBy(m => m.NumeroModulo).ToList() ?? new List<ControlEscolarWeb.Models.CalificacionModulo>();
+    var promedioGeneral = Model.PromedioGeneral;
 }
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -46,9 +48,15 @@
                     </span>
                 </div>
             </div>
-            <div class="text-right text-xs text-slate-500 font-medium">
-                Registrado el:<br/>
-                <span class="text-slate-800 text-sm font-bold">@Model.FechaRegistro.ToString("dd MMM yyyy")</span>
+            <div class="flex items-center gap-6">
+                <div class="text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Promedio General</p>
+                    <span class="text-2xl font-black text-indigo-900 font-mono">@(promedioGeneral.HasValue ? promedioGeneral.Value.ToString("0.0") : "-")</span>
+                </div>
+                <div class="text-right text-xs text-slate-500 font-medium">
+                    Registrado el:<br/>
+                    <span class="text-slate-800 text-sm font-bold">@Model.FechaRegistro.ToString("dd MMM yyyy")</span>
+                </div>
             </div>
         </div>
 
@@ -131,6 +139,78 @@
             </div>
 
         </div>
+
+        <!-- Calificaciones y Promedio General -->
+        @if (modulos.Any())
+        {
+            <div class="px-6 sm:px-8 pb-8">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
+                    <h4 class="text-sm font-bold text-slate-800">Calificaciones por Módulo</h4>
+                    <span class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-lg">
+                        Promedio General: @(promedioGeneral.HasValue ? promedioGeneral.Value.ToString("0.0") : "Sin evaluar")
+                    </span>
+                </div>
+                <div class="overflow-x-auto border rounded-xl">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4 w-14 text-center">#</th>
+                                <th class="py-3 px-6">Módulo / Materia</th>
+                                <th class="py-3 px-4 w-32 text-center">Calificación</th>
+                                <th class="py-3 px-4 w-36 text-center">Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            @foreach (var m in modulos)
+                            {
+                                <tr>
+                                    <td class="py-2.5 px-4 text-center font-bold text-slate-400 font-mono">@m.NumeroModulo</td>
+                                    <td class="py-2.5 px-6 font-semibold text-slate-800">@m.NombreModulo</td>
+                                    <td class="py-2.5 px-4 text-center font-bold font-mono text-slate-900">
+                                        @(m.Calificacion.HasValue ? m.Calificacion.Value.ToString("0.0") : "-")
+                                    </td>
+                                    <td class="py-2.5 px-4 text-center">
+                                        @if (!m.Calificacion.HasValue)
+                                        {
+                                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">Pendiente</span>
+                                        }
+                                        else if (m.Calificacion.Value >= 6.0m)
+                                        {
+                                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Acreditado</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700">No Acreditado</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-bold text-slate-800">
+                            <tr>
+                                <td colspan="2" class="py-3 px-6 text-right uppercase text-xs tracking-wider text-slate-600">Promedio General:</td>
+                                <td class="py-3 px-4 text-center text-base font-black text-indigo-900 font-mono">
+                                    @(promedioGeneral.HasValue ? promedioGeneral.Value.ToString("0.0") : "-")
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    @if (!promedioGeneral.HasValue)
+                                    {
+                                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">Sin evaluar</span>
+                                    }
+                                    else if (promedioGeneral.Value >= 6.0m)
+                                    {
+                                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Promedio Aprobatorio</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700">Promedio No Aprobatorio</span>
+                                    }
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        }
     </div>
 </div>
-

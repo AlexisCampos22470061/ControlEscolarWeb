@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 namespace ControlEscolarWeb.Models
 {
     public class Alumno
@@ -58,5 +60,21 @@ namespace ControlEscolarWeb.Models
         public string Estatus { get; set; } = "ACTIVO";
 
         public virtual ICollection<CalificacionModulo> Calificaciones { get; set; } = new List<CalificacionModulo>();
+
+        [NotMapped]
+        public decimal? PromedioGeneral
+        {
+            get
+            {
+                var calificacionesValidas = Calificaciones?
+                    .Where(c => c.Calificacion.HasValue)
+                    .Select(c => c.Calificacion!.Value)
+                    .ToList();
+
+                return (calificacionesValidas != null && calificacionesValidas.Any())
+                    ? Math.Round(calificacionesValidas.Average(), 1)
+                    : null;
+            }
+        }
     }
 }

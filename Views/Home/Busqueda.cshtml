@@ -71,7 +71,7 @@
             </div>
             <div class="flex items-center gap-6">
                 <div class="text-center">
-                    <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Promedio</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Promedio General</p>
                     <span class="text-3xl font-black text-indigo-900" id="txtPromedio">-</span>
                 </div>
                 <div class="text-center">
@@ -131,10 +131,17 @@
 
                 <!-- Pestaña 2: Materias -->
                 <div id="tabMaterias" class="tab-content hidden">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                         <div>
                             <h4 class="font-bold text-slate-900 text-lg">Historial de Módulos (8 Materias)</h4>
-                            <p class="text-xs text-slate-500">Captura directa de calificación</p>
+                            <p class="text-xs text-slate-500">Captura directa de calificación — el promedio general se genera automáticamente</p>
+                        </div>
+                        <div class="flex items-center gap-4 bg-indigo-50/80 border border-indigo-200 rounded-xl px-4 py-2.5 self-start sm:self-auto">
+                            <div>
+                                <p class="text-[11px] font-bold uppercase tracking-wider text-indigo-600">Promedio General</p>
+                                <p class="text-[11px] text-slate-500" id="txtResumenMaterias">0 de 8 evaluadas</p>
+                            </div>
+                            <span class="text-2xl font-black text-indigo-900 font-mono" id="txtPromedioMaterias">-</span>
                         </div>
                     </div>
                     <div class="overflow-x-auto border rounded-xl">
@@ -149,6 +156,22 @@
                                 </tr>
                             </thead>
                             <tbody id="tbodyModulos" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                            <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-bold text-slate-800">
+                                <tr>
+                                    <td colspan="2" class="py-3.5 px-6 text-right uppercase text-xs tracking-wider text-slate-600">
+                                        Promedio General:
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center text-lg font-black text-indigo-900 font-mono" id="txtPromedioTabla">
+                                        -
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center" id="badgePromedioTabla">
+                                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">Sin evaluar</span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center text-xs text-slate-400 font-normal">
+                                        Automático
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -271,6 +294,60 @@
         }
     }
 
+    function obtenerBadgeAcreditado(calificacion) {
+        if (calificacion === null || isNaN(calificacion)) {
+            return '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">Pendiente</span>';
+        }
+        return calificacion >= 6.0
+            ? '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Acreditado</span>'
+            : '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700">No Acreditado</span>';
+    }
+
+    function recalcularPromedioEnVivo() {
+        const inputs = document.querySelectorAll('[id^="input-cal-"]');
+        const totalMaterias = inputs.length || 8;
+        let suma = 0;
+        let evaluadas = 0;
+
+        inputs.forEach(input => {
+            const numModulo = input.id.replace("input-cal-", "");
+            const rawVal = input.value.trim();
+            const val = rawVal === "" ? null : parseFloat(rawVal);
+            const celdaBadge = document.getElementById(`badge-mod-${numModulo}`);
+
+            if (val !== null && !isNaN(val) && val >= 0 && val <= 10) {
+                suma += val;
+                evaluadas++;
+                if (celdaBadge) {
+                    celdaBadge.innerHTML = obtenerBadgeAcreditado(val);
+                }
+            } else {
+                if (celdaBadge) {
+                    celdaBadge.innerHTML = obtenerBadgeAcreditado(null);
+                }
+            }
+        });
+
+        const promedioTexto = evaluadas > 0 ? (suma / evaluadas).toFixed(1) : "-";
+        const promedioValor = evaluadas > 0 ? parseFloat(promedioTexto) : null;
+
+        document.getElementById("txtPromedio").textContent = promedioTexto;
+        document.getElementById("txtPromedioMaterias").textContent = promedioTexto;
+        document.getElementById("txtPromedioTabla").textContent = promedioTexto;
+        document.getElementById("txtResumenMaterias").textContent = `${evaluadas} de ${totalMaterias} evaluadas`;
+
+        const badgePromedioTabla = document.getElementById("badgePromedioTabla");
+        if (badgePromedioTabla) {
+            if (promedioValor === null) {
+                badgePromedioTabla.innerHTML = '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">Sin evaluar</span>';
+            } else if (promedioValor >= 6.0) {
+                badgePromedioTabla.innerHTML = '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Promedio Aprobatorio</span>';
+            } else {
+                badgePromedioTabla.innerHTML = '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700">Promedio No Aprobatorio</span>';
+            }
+        }
+    }
+
     function dibujarAlumno(data) {
         const al = data.alumno;
         document.getElementById("txtNombreCompleto").textContent = al.nombreCompleto;
@@ -297,8 +374,6 @@
         document.getElementById("txtFechaReg").textContent = al.fechaRegistro ? al.fechaRegistro.split('T')[0] : "No registrada";
 
         // Situación
-        document.getElementById("txtPromedio").textContent = data.promedio !== null ? data.promedio : "-";
-
         const badgeEstatus = document.getElementById("badgeEstatus");
         badgeEstatus.textContent = al.estatus || "ACTIVO";
         badgeEstatus.className = "inline-block px-6 py-2 rounded-full text-sm font-black border ";
@@ -319,12 +394,7 @@
 
         data.modulos.forEach(m => {
             const calVal = m.calificacion !== null ? m.calificacion : "";
-            let badge = '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">Pendiente</span>';
-            if (m.calificacion !== null) {
-                badge = m.acreditado 
-                    ? '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">Acreditado</span>'
-                    : '<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700">No Acreditado</span>';
-            }
+            const badge = obtenerBadgeAcreditado(m.calificacion);
 
             const fila = document.createElement("tr");
             fila.className = "hover:bg-slate-50/70 transition";
@@ -339,13 +409,16 @@
                         max="10" 
                         id="input-cal-${m.numeroModulo}"
                         value="${calVal}" 
+                        oninput="recalcularPromedioEnVivo()"
+                        onchange="guardarNota(${m.numeroModulo})"
                         class="w-20 px-2 py-1.5 text-center font-bold text-slate-800 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 bg-white"
                     />
                 </td>
-                <td class="py-3 px-4 text-center">${badge}</td>
+                <td class="py-3 px-4 text-center" id="badge-mod-${m.numeroModulo}">${badge}</td>
                 <td class="py-3 px-4 text-center">
                     <button 
                         type="button" 
+                        id="btn-guardar-${m.numeroModulo}"
                         onclick="guardarNota(${m.numeroModulo})"
                         class="text-xs bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 font-bold px-3 py-1.5 rounded-lg transition border border-indigo-200">
                         Guardar
@@ -354,18 +427,28 @@
             `;
             tbody.appendChild(fila);
         });
+
+        recalcularPromedioEnVivo();
     }
 
     async function guardarNota(moduloNum) {
         const input = document.getElementById(`input-cal-${moduloNum}`);
-        const cal = input.value === "" ? null : parseFloat(input.value);
+        const btn = document.getElementById(`btn-guardar-${moduloNum}`);
+        const cal = input.value.trim() === "" ? null : parseFloat(input.value);
 
         if (cal !== null && (isNaN(cal) || cal < 0 || cal > 10)) {
             alert("Por favor ingresa una calificación válida entre 0 y 10.");
             return;
         }
 
+        recalcularPromedioEnVivo();
+
         try {
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = "Guardando...";
+            }
+
             const resp = await fetch("/Home/GuardarCalificacion", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -377,18 +460,31 @@
             });
 
             if (resp.ok) {
-                // Refrescamos los datos para recalcular promedios y estados automáticamente
-                ejecutarBusqueda();
+                recalcularPromedioEnVivo();
+                if (btn) {
+                    btn.textContent = "Guardado";
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.textContent = "Guardar";
+                    }, 1200);
+                }
             } else {
                 const err = await resp.json();
                 alert(err.error || "No se pudo guardar la calificación.");
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = "Guardar";
+                }
             }
         } catch (e) {
             alert("Error de conexión al guardar.");
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = "Guardar";
+            }
         }
     }
 
-    
     function mostrarPestana(idTab) {
         // Ocultar todos
         document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -419,8 +515,8 @@
             });
 
             if (resp.ok) {
-                // Refrescar para ver el cambio
-                ejecutarBusqueda();
+                // Refrescar el detalle del alumno actual sin perder la selección
+                cargarDetalle(alumnoIdActual);
             } else {
                 const err = await resp.json();
                 alert(err.error || "No se pudo actualizar el estatus.");
@@ -429,10 +525,5 @@
             alert("Error de conexión al guardar.");
         }
     }
-
-    // window.addEventListener("DOMContentLoaded", () => {
-    //     ejecutarBusqueda();
-    // });
-
 </script>
 }

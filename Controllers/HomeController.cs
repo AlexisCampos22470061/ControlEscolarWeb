@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ControlEscolarWeb.Data;
 using ControlEscolarWeb.Models;
+using ControlEscolarWeb.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -218,7 +219,21 @@ namespace ControlEscolarWeb.Controllers
             calModulo.Calificacion = request.Calificacion;
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, mensaje = "Calificación guardada correctamente." });
+            var calificacionesValidas = await _context.CalificacionesModulos
+                .Where(c => c.AlumnoId == request.AlumnoId && c.Calificacion.HasValue)
+                .Select(c => c.Calificacion!.Value)
+                .ToListAsync();
+
+            decimal? promedio = calificacionesValidas.Any()
+                ? Math.Round(calificacionesValidas.Average(), 1)
+                : null;
+
+            return Json(new
+            {
+                success = true,
+                mensaje = "Calificación guardada correctamente.",
+                promedio
+            });
         }
 
         // Endpoint POST: Cambiar estatus
@@ -250,6 +265,14 @@ namespace ControlEscolarWeb.Controllers
             await _context.SaveChangesAsync();
 
             return Json(new { success = true, mensaje = "Estatus actualizado correctamente." });
+        }
+
+        // Endpoint GET: Obtener siguiente matrícula sugerida
+        [HttpGet]
+        public async Task<IActionResult> ObtenerSiguienteMatricula([FromServices] IMatriculaService matriculaService)
+        {
+            var matricula = await matriculaService.GenerarSiguienteMatriculaAsync();
+            return Json(new { matricula });
         }
     }
 

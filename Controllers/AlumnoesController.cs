@@ -7,22 +7,25 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ControlEscolarWeb.Data;
 using ControlEscolarWeb.Models;
+using ControlEscolarWeb.Services;
 
 namespace ControlEscolarWeb.Controllers
 {
     public class AlumnoesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMatriculaService _matriculaService;
 
-        public AlumnoesController(ApplicationDbContext context)
+        public AlumnoesController(ApplicationDbContext context, IMatriculaService matriculaService)
         {
             _context = context;
+            _matriculaService = matriculaService;
         }
 
         // GET: Alumnoes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Alumnos.ToListAsync());
+            return View(await _context.Alumnos.Include(a => a.Calificaciones).ToListAsync());
         }
 
         // GET: Alumnoes/Details/5
@@ -34,6 +37,7 @@ namespace ControlEscolarWeb.Controllers
             }
 
             var alumno = await _context.Alumnos
+                .Include(a => a.Calificaciones)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (alumno == null)
             {
@@ -44,9 +48,14 @@ namespace ControlEscolarWeb.Controllers
         }
 
         // GET: Alumnoes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var siguienteMatricula = await _matriculaService.GenerarSiguienteMatriculaAsync();
+            var modelo = new Alumno
+            {
+                Matricula = siguienteMatricula
+            };
+            return View(modelo);
         }
 
         // POST: Alumnoes/Create
@@ -54,6 +63,16 @@ namespace ControlEscolarWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Matricula,NombreCompleto,Curp,FechaNacimiento,Genero,CalleNumero,Colonia,CodigoPostal,MunicipioEntidad,Horario,Campus,FechaRegistro,Telefono,Correo,Estatus")] Alumno alumno)
         {
+            if (string.IsNullOrWhiteSpace(alumno.Matricula))
+            {
+                alumno.Matricula = null;
+                ModelState.Remove(nameof(Alumno.Matricula));
+            }
+            else
+            {
+                alumno.Matricula = alumno.Matricula.Trim();
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(alumno);
@@ -107,6 +126,16 @@ namespace ControlEscolarWeb.Controllers
             if (id != alumno.Id)
             {
                 return NotFound();
+            }
+
+            if (string.IsNullOrWhiteSpace(alumno.Matricula))
+            {
+                alumno.Matricula = null;
+                ModelState.Remove(nameof(Alumno.Matricula));
+            }
+            else
+            {
+                alumno.Matricula = alumno.Matricula.Trim();
             }
 
             if (ModelState.IsValid)
