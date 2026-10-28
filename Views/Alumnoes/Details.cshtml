@@ -13,6 +13,10 @@
             <p class="text-sm text-slate-500 mt-1">Información completa del alumno.</p>
         </div>
         <div class="flex gap-2">
+            <a asp-controller="Home" asp-action="Credencial" asp-route-id="@Model?.Id" class="inline-flex items-center gap-2 bg-amber-50 hover:bg-amber-100 text-amber-800 text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm border border-amber-200">
+                <i class="fa-solid fa-id-card text-xs"></i>
+                <span>Generar Credencial</span>
+            </a>
             <a asp-action="Edit" asp-route-id="@Model?.Id" class="inline-flex items-center gap-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-semibold px-4 py-2 rounded-xl transition shadow-sm border border-indigo-200">
                 <i class="fa-solid fa-pen-to-square text-xs"></i>
                 <span>Editar</span>

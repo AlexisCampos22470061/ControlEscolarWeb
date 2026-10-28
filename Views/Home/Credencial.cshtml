@@ -1,0 +1,800 @@
+@{
+    ViewData["Title"] = "Generador de Credencial Escolar";
+    var initId = ViewBag.AlumnoId as int?;
+    var initMatricula = ViewBag.Matricula as string ?? "";
+}
+
+<style>
+    /* Contenedor de las 2 imágenes separadas en su resolución nativa */
+    .credencial-par {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+        font-family: 'Calibri', 'Segoe UI', Arial, sans-serif;
+        user-select: none;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Frente separado en SVG vectorial: /img/frente.svg (567 x 345) */
+    .credencial-frente-box {
+        width: 567px;
+        height: 345px;
+        position: relative;
+        background-image: url('/img/frente.svg');
+        background-size: 567px 345px;
+        background-repeat: no-repeat;
+        background-position: top left;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    /* Reverso separado en SVG vectorial: /img/reverso.svg (579 x 352) */
+    .credencial-reverso-box {
+        width: 579px;
+        height: 352px;
+        position: relative;
+        background-image: url('/img/reverso.svg');
+        background-size: 579px 352px;
+        background-repeat: no-repeat;
+        background-position: top left;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .campo-credencial {
+        position: absolute;
+        color: #0f172a;
+        text-transform: uppercase;
+        white-space: nowrap;
+        line-height: 1.15;
+        overflow: visible;
+        pointer-events: none;
+    }
+
+    /* Coordenadas medidas sobre /img/image copy 2.png (579 x 352) */
+    .valor-reverso-sep {
+        left: 114px;
+        font-size: 14.5px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        color: #111111;
+    }
+
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+        header, .no-print {
+            display: none !important;
+        }
+        #zonaImpresion, #zonaImpresion * {
+            visibility: visible;
+        }
+        #zonaImpresion {
+            position: fixed;
+            left: 0;
+            top: 0;
+            margin: 0;
+            padding: 8mm;
+            background: white !important;
+            box-shadow: none !important;
+        }
+        .credencial-frente-box, .credencial-reverso-box {
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+        }
+    }
+</style>
+
+<div class="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+
+    <!-- Barra Superior y Buscador por Matrícula -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 no-print">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                        Credencialización CPC
+                    </span>
+                </div>
+                <h2 class="text-xl font-black text-slate-800 mt-1">Generador de Credencial Escolar</h2>
+                <p class="text-xs text-slate-500">Ingresa la matrícula del alumno (o su nombre) para generar automáticamente su credencial institucional.</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a asp-controller="Home" asp-action="Busqueda"
+                   class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition shadow-sm">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    <span>Consulta Académica</span>
+                </a>
+                <a asp-controller="Home" asp-action="Bienvenida"
+                   class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition shadow-sm">
+                    <i class="fa-solid fa-house text-xs"></i>
+                    <span>Inicio</span>
+                </a>
+            </div>
+        </div>
+
+        <form id="formBuscarCredencial" class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+                <i class="fa-solid fa-id-badge absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input 
+                    type="text" 
+                    id="inputMatriculaCred" 
+                    value="@initMatricula"
+                    placeholder="Escribe la matrícula (ej. 26286000186) o nombre del alumno..." 
+                    class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 font-medium font-mono"
+                />
+            </div>
+            <button 
+                type="submit" 
+                class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                <i class="fa-solid fa-id-card"></i> Generar Credencial
+            </button>
+        </form>
+
+        <div id="alertaErrorCred" class="hidden mt-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm font-medium flex items-center gap-2">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="alertaErrorCredTxt"></span>
+        </div>
+    </div>
+
+    <!-- Lista cuando hay múltiples coincidencias -->
+    <div id="panelMultiplesCred" class="hidden space-y-3 no-print">
+        <h3 class="text-sm font-bold text-slate-700">Selecciona al alumno para generar su credencial:</h3>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <ul id="listaMultiplesCred" class="divide-y divide-slate-100"></ul>
+        </div>
+    </div>
+
+    <!-- Panel de Personalización y Vista Previa de Credencial -->
+    <div id="panelCredencialGenerada" class="hidden space-y-6">
+
+        <!-- Controles Rápidos (Fechas, Ubicación y Fotografía Opcional) -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 no-print">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-amber-600"></i>
+                        <span>Ajustes de Impresión y Vigencia</span>
+                    </h3>
+                    <p class="text-xs text-slate-500">Las plantillas base están en formato vectorial SVG (`frente.svg` y `reverso.svg`) para máxima nitidez.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <label class="cursor-pointer inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2.5 rounded-xl transition border border-slate-200">
+                        <i class="fa-solid fa-camera text-slate-600"></i>
+                        <span>Subir Foto</span>
+                        <input type="file" id="inputFotoAlumno" accept="image/*" class="hidden" onchange="cargarFotoAlumno(event)" />
+                    </label>
+                    <button type="button" id="btnQuitarFoto" onclick="quitarFotoAlumno()" class="hidden inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold px-3 py-2.5 rounded-xl transition border border-rose-200">
+                        <i class="fa-solid fa-trash-can"></i>
+                        <span>Quitar Foto</span>
+                    </button>
+                    <button type="button" onclick="descargarCredencialPng()" id="btnDescargarPng" class="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
+                        <i class="fa-solid fa-download"></i>
+                        <span>Descargar Imagen (PNG)</span>
+                    </button>
+                    <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Imprimir Credencial</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Fecha de Expedición</label>
+                    <input type="text" id="inputExpedicion" oninput="actualizarCamposManuales()" placeholder="DD-MM-AAAA"
+                           class="w-full px-3 py-2 text-xs font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Fecha de Vigencia</label>
+                    <input type="text" id="inputVigencia" oninput="actualizarCamposManuales()" placeholder="DD-MM-AAAA"
+                           class="w-full px-3 py-2 text-xs font-mono rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Municipio</label>
+                    <input type="text" id="inputMunicipioCred" oninput="actualizarCamposManuales()" value="CAMPECHE"
+                           class="w-full px-3 py-2 text-xs uppercase rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Estado</label>
+                    <input type="text" id="inputEstadoCred" oninput="actualizarCamposManuales()" value="CAMPECHE"
+                           class="w-full px-3 py-2 text-xs uppercase rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+                </div>
+            </div>
+
+            <!-- Barra de Edición Interactiva de Fotografía (Zoom y Arrastre sin estirar) -->
+            <div id="panelEditorFoto" class="hidden mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-amber-50/50 p-3.5 rounded-xl border border-amber-200/70">
+                <div class="flex items-center gap-2.5 text-xs text-slate-700">
+                    <i class="fa-solid fa-crop-simple text-amber-600 text-base"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">Encuadre de Fotografía (Sin estirar):</span>
+                        <span class="text-slate-600 ml-1">Arrastra la foto con el mouse dentro del recuadro de la credencial para acomodarla.</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <span class="text-xs font-bold text-slate-600 whitespace-nowrap"><i class="fa-solid fa-magnifying-glass-minus mr-1"></i>Zoom:</span>
+                    <input type="range" id="sliderZoomFoto" min="1" max="3" step="0.02" value="1" oninput="cambiarZoomFoto(this.value)"
+                           class="w-36 accent-amber-600 cursor-pointer" />
+                    <span id="txtZoomFoto" class="text-xs font-mono font-bold text-amber-800 w-11">100%</span>
+                    <button type="button" onclick="centrarFotoAlumno()" class="text-xs bg-white hover:bg-slate-100 text-slate-700 font-bold px-3 py-1.5 rounded-lg border border-slate-300 transition shadow-sm whitespace-nowrap">
+                        <i class="fa-solid fa-arrows-to-dot mr-1"></i>Centrar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor Visual de las 2 Imágenes Separadas (/img/image copy.png y /img/image copy 2.png) -->
+        <div class="bg-slate-200/70 p-6 rounded-2xl border border-slate-300 overflow-x-auto flex flex-col items-center justify-center">
+            <div class="mb-3 flex items-center gap-6 text-xs font-bold text-slate-500 uppercase tracking-wider no-print">
+                <span><i class="fa-regular fa-id-card mr-1"></i> Frente (`frente.svg`)</span>
+                <span>•</span>
+                <span><i class="fa-solid fa-rotate mr-1"></i> Reverso (`reverso.svg`)</span>
+            </div>
+
+            <div id="zonaImpresion">
+                <div id="credencialCanvas" class="credencial-par">
+
+                    <!-- ================= TARJETA 1: FRENTE SEPARADO (567 x 345) ================= -->
+                    <div class="credencial-frente-box">
+                        <!-- Nombre del Alumno -->
+                        <div id="credNombre"
+                             style="position:absolute; left:19px; top:144px; width:245px; font-size:17px; font-weight:700; color:#000000; line-height:26px; text-transform:uppercase; white-space:normal; word-break:break-word;">
+                            SOSA GUZMAN LUIS ALFONSO
+                        </div>
+
+                        <!-- Matrícula (a la derecha de 'MATRICULA:') -->
+                        <div id="credMatricula"
+                             style="position:absolute; left:84px; top:246px; font-size:17.5px; font-weight:800; color:#000000; letter-spacing:0.01em; line-height:1.15;">
+                            26286000186
+                        </div>
+
+                        <!-- Recuadro Blanco Redondeado para Fotografía (x=356, y=17, w=195, h=273) -->
+                        <div id="marcoFotoCredencial" title="Arrastra para mover la foto o usa la rueda del mouse para hacer zoom"
+                             style="position:absolute; left:356px; top:17px; width:195px; height:273px; border-radius:32px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+                            <canvas id="canvasFotoCredencial" width="585" height="819" class="hidden" style="width:195px; height:273px; display:block; cursor:grab;"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- ================= TARJETA 2: REVERSO SEPARADO (579 x 352) ================= -->
+                    <div class="credencial-reverso-box">
+                        <div id="credCurp" class="campo-credencial valor-reverso-sep" style="top:30px;">-</div>
+                        <div id="credDomicilio" class="campo-credencial valor-reverso-sep" style="top:56px;">-</div>
+                        <div id="credColonia" class="campo-credencial valor-reverso-sep" style="top:82px;">-</div>
+                        <div id="credMunicipio" class="campo-credencial valor-reverso-sep" style="top:108px;">CAMPECHE</div>
+                        <div id="credCp" class="campo-credencial valor-reverso-sep" style="top:134px;">-</div>
+                        <div id="credEstado" class="campo-credencial valor-reverso-sep" style="top:160px;">CAMPECHE</div>
+                        <div id="credTelefono" class="campo-credencial valor-reverso-sep" style="top:186px;">-</div>
+                        <div id="credExpedicion" class="campo-credencial valor-reverso-sep" style="top:216px;">-</div>
+                        <div id="credVigencia" class="campo-credencial valor-reverso-sep" style="top:240px;">-</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        const initAlumnoId = @(initId.HasValue ? initId.Value.ToString() : "null");
+        const initMatriculaStr = "@Html.Raw(initMatricula)";
+
+        // Precargar las 2 plantillas separadas en SVG vectorial (/img/frente.svg y /img/reverso.svg)
+        const imgFrente = new Image();
+        imgFrente.crossOrigin = "anonymous";
+        imgFrente.src = "/img/frente.svg";
+
+        const imgReverso = new Image();
+        imgReverso.crossOrigin = "anonymous";
+        imgReverso.src = "/img/reverso.svg";
+
+        function formatearFechaDMY(fecha) {
+            const dd = String(fecha.getDate()).padStart(2, '0');
+            const mm = String(fecha.getMonth() + 1).padStart(2, '0');
+            const yyyy = fecha.getFullYear();
+            return `${dd}-${mm}-${yyyy}`;
+        }
+
+        function inicializarFechasPorDefecto() {
+            const hoy = new Date();
+            const vigencia = new Date(hoy.getFullYear(), hoy.getMonth() + 5, hoy.getDate());
+            document.getElementById("inputExpedicion").value = formatearFechaDMY(hoy);
+            document.getElementById("inputVigencia").value = formatearFechaDMY(vigencia);
+        }
+
+        document.getElementById("formBuscarCredencial").addEventListener("submit", function (e) {
+            e.preventDefault();
+            buscarParaCredencial();
+        });
+
+        async function buscarParaCredencial() {
+            const criterio = document.getElementById("inputMatriculaCred").value.trim();
+            const alerta = document.getElementById("alertaErrorCred");
+            const alertaTxt = document.getElementById("alertaErrorCredTxt");
+            const panelCred = document.getElementById("panelCredencialGenerada");
+            const panelMulti = document.getElementById("panelMultiplesCred");
+
+            alerta.classList.add("hidden");
+            panelMulti.classList.add("hidden");
+
+            if (!criterio) {
+                alertaTxt.textContent = "Por favor ingresa una matrícula o nombre de alumno.";
+                alerta.classList.remove("hidden");
+                panelCred.classList.add("hidden");
+                return;
+            }
+
+            try {
+                const resp = await fetch(`/Home/BuscarAlumno?criterio=${encodeURIComponent(criterio)}`);
+                const data = await resp.json();
+
+                if (!resp.ok) {
+                    alertaTxt.textContent = data.error || "No se encontró ningún alumno con esa matrícula o nombre.";
+                    alerta.classList.remove("hidden");
+                    panelCred.classList.add("hidden");
+                    return;
+                }
+
+                if (data.alumnos.length === 1) {
+                    cargarCredencialAlumno(data.alumnos[0].id);
+                } else if (data.alumnos.length > 1) {
+                    panelCred.classList.add("hidden");
+                    mostrarMultiplesCredencial(data.alumnos);
+                }
+            } catch (err) {
+                alertaTxt.textContent = "Error de conexión al consultar el alumno.";
+                alerta.classList.remove("hidden");
+            }
+        }
+
+        function mostrarMultiplesCredencial(alumnos) {
+            const ul = document.getElementById("listaMultiplesCred");
+            ul.innerHTML = "";
+            alumnos.forEach(al => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <button type="button" onclick="cargarCredencialAlumno(${al.id})" class="w-full text-left p-4 hover:bg-amber-50/60 transition flex items-center justify-between group">
+                        <div>
+                            <p class="font-bold text-slate-900 group-hover:text-amber-700 transition">${al.nombreCompleto}</p>
+                            <p class="text-sm font-mono text-slate-500">${al.matricula || 'Matrícula en trámite'}</p>
+                        </div>
+                        <span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-lg">
+                            Generar Credencial <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </span>
+                    </button>
+                `;
+                ul.appendChild(li);
+            });
+            document.getElementById("panelMultiplesCred").classList.remove("hidden");
+        }
+
+        async function cargarCredencialAlumno(id) {
+            const alerta = document.getElementById("alertaErrorCred");
+            const alertaTxt = document.getElementById("alertaErrorCredTxt");
+            document.getElementById("panelMultiplesCred").classList.add("hidden");
+            alerta.classList.add("hidden");
+
+            try {
+                const resp = await fetch(`/Home/GetAlumnoDetalle?id=${id}`);
+                if (!resp.ok) {
+                    alertaTxt.textContent = "No se pudieron obtener los datos del alumno.";
+                    alerta.classList.remove("hidden");
+                    return;
+                }
+
+                const data = await resp.json();
+                rellenarCredencial(data.alumno);
+                document.getElementById("panelCredencialGenerada").classList.remove("hidden");
+            } catch (err) {
+                alertaTxt.textContent = "Error al cargar los datos para la credencial.";
+                alerta.classList.remove("hidden");
+            }
+        }
+
+        function rellenarCredencial(al) {
+            document.getElementById("credNombre").textContent = (al.nombreCompleto || "SIN NOMBRE").toUpperCase();
+            document.getElementById("credMatricula").textContent = (al.matricula || "EN TRÁMITE").toUpperCase();
+            document.getElementById("credCurp").textContent = (al.curp || "NO REGISTRADA").toUpperCase();
+            document.getElementById("credDomicilio").textContent = (al.calleNumero || "SIN DOMICILIO").toUpperCase();
+            document.getElementById("credColonia").textContent = (al.colonia || "SIN COLONIA").toUpperCase();
+            document.getElementById("credCp").textContent = (al.codigoPostal || "24000").toUpperCase();
+            document.getElementById("credTelefono").textContent = (al.telefono || "SIN TELÉFONO").toUpperCase();
+
+            let municipio = "CAMPECHE";
+            let estado = "CAMPECHE";
+            if (al.municipioEntidad && al.municipioEntidad.trim() !== "") {
+                const partes = al.municipioEntidad.split(/[,/|-]/).map(p => p.trim()).filter(Boolean);
+                if (partes.length >= 2) {
+                    municipio = partes[0].toUpperCase();
+                    estado = partes[1].toUpperCase();
+                } else if (partes.length === 1) {
+                    municipio = partes[0].toUpperCase();
+                }
+            }
+
+            document.getElementById("inputMunicipioCred").value = municipio;
+            document.getElementById("inputEstadoCred").value = estado;
+
+            if (!document.getElementById("inputExpedicion").value) {
+                inicializarFechasPorDefecto();
+            }
+
+            actualizarCamposManuales();
+        }
+
+        function actualizarCamposManuales() {
+            document.getElementById("credMunicipio").textContent = (document.getElementById("inputMunicipioCred").value || "CAMPECHE").toUpperCase();
+            document.getElementById("credEstado").textContent = (document.getElementById("inputEstadoCred").value || "CAMPECHE").toUpperCase();
+            document.getElementById("credExpedicion").textContent = document.getElementById("inputExpedicion").value || "-";
+            document.getElementById("credVigencia").textContent = document.getElementById("inputVigencia").value || "-";
+        }
+
+        // Estado del editor interactivo de fotografía (sin deformar / sin estirar)
+        let fotoOriginalObj = null;
+        let fotoZoom = 1;
+        let fotoOffsetX = 0; // desplazamiento en píxeles del canvas (585x819)
+        let fotoOffsetY = 0;
+        let arrastrandoFoto = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        function cargarFotoAlumno(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    fotoOriginalObj = img;
+                    fotoZoom = 1;
+                    fotoOffsetX = 0;
+                    fotoOffsetY = 0;
+
+                    document.getElementById("sliderZoomFoto").value = "1";
+                    document.getElementById("txtZoomFoto").textContent = "100%";
+                    document.getElementById("canvasFotoCredencial").classList.remove("hidden");
+                    document.getElementById("btnQuitarFoto").classList.remove("hidden");
+                    document.getElementById("panelEditorFoto").classList.remove("hidden");
+
+                    dibujarFotoEnCanvas();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function dibujarFotoEnCanvas() {
+            const canvas = document.getElementById("canvasFotoCredencial");
+            if (!canvas || !fotoOriginalObj) return;
+            const ctx = canvas.getContext("2d");
+            const cw = canvas.width;  // 585 (195x3)
+            const ch = canvas.height; // 819 (273x3)
+
+            ctx.clearRect(0, 0, cw, ch);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, cw, ch);
+
+            const escalaBase = Math.max(cw / fotoOriginalObj.width, ch / fotoOriginalObj.height);
+            const escalaTotal = escalaBase * fotoZoom;
+
+            const drawW = fotoOriginalObj.width * escalaTotal;
+            const drawH = fotoOriginalObj.height * escalaTotal;
+
+            const maxOffsetX = Math.max(0, (drawW - cw) / 2);
+            const maxOffsetY = Math.max(0, (drawH - ch) / 2);
+
+            if (fotoOffsetX > maxOffsetX) fotoOffsetX = maxOffsetX;
+            if (fotoOffsetX < -maxOffsetX) fotoOffsetX = -maxOffsetX;
+            if (fotoOffsetY > maxOffsetY) fotoOffsetY = maxOffsetY;
+            if (fotoOffsetY < -maxOffsetY) fotoOffsetY = -maxOffsetY;
+
+            const x = (cw - drawW) / 2 + fotoOffsetX;
+            const y = (ch - drawH) / 2 + fotoOffsetY;
+
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(fotoOriginalObj, x, y, drawW, drawH);
+        }
+
+        function cambiarZoomFoto(valor) {
+            fotoZoom = parseFloat(valor) || 1;
+            document.getElementById("txtZoomFoto").textContent = `${Math.round(fotoZoom * 100)}%`;
+            dibujarFotoEnCanvas();
+        }
+
+        function centrarFotoAlumno() {
+            fotoZoom = 1;
+            fotoOffsetX = 0;
+            fotoOffsetY = 0;
+            document.getElementById("sliderZoomFoto").value = "1";
+            document.getElementById("txtZoomFoto").textContent = "100%";
+            dibujarFotoEnCanvas();
+        }
+
+        function quitarFotoAlumno() {
+            fotoOriginalObj = null;
+            const canvas = document.getElementById("canvasFotoCredencial");
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.classList.add("hidden");
+            document.getElementById("inputFotoAlumno").value = "";
+            document.getElementById("btnQuitarFoto").classList.add("hidden");
+            document.getElementById("panelEditorFoto").classList.add("hidden");
+        }
+
+        (function inicializarEventosFoto() {
+            const canvas = document.getElementById("canvasFotoCredencial");
+            if (!canvas) return;
+
+            canvas.addEventListener("mousedown", (e) => {
+                if (!fotoOriginalObj) return;
+                arrastrandoFoto = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                canvas.style.cursor = "grabbing";
+                e.preventDefault();
+            });
+
+            window.addEventListener("mousemove", (e) => {
+                if (!arrastrandoFoto || !fotoOriginalObj) return;
+                const dx = (e.clientX - dragStartX) * 3;
+                const dy = (e.clientY - dragStartY) * 3;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                fotoOffsetX += dx;
+                fotoOffsetY += dy;
+                dibujarFotoEnCanvas();
+            });
+
+            window.addEventListener("mouseup", () => {
+                if (arrastrandoFoto) {
+                    arrastrandoFoto = false;
+                    canvas.style.cursor = "grab";
+                }
+            });
+
+            canvas.addEventListener("wheel", (e) => {
+                if (!fotoOriginalObj) return;
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.08 : -0.08;
+                const nuevoZoom = Math.min(3, Math.max(1, fotoZoom + delta));
+                document.getElementById("sliderZoomFoto").value = nuevoZoom.toFixed(2);
+                cambiarZoomFoto(nuevoZoom);
+            }, { passive: false });
+        })();
+
+        function obtenerLineasNombre(ctx, texto, maxWidth) {
+            const palabras = texto.split(" ");
+            const lineas = [];
+            let linea = "";
+            for (let i = 0; i < palabras.length; i++) {
+                const prueba = linea ? (linea + " " + palabras[i]) : palabras[i];
+                if (ctx.measureText(prueba).width > maxWidth && linea !== "") {
+                    lineas.push(linea);
+                    linea = palabras[i];
+                } else {
+                    linea = prueba;
+                }
+            }
+            if (linea) lineas.push(linea);
+            return lineas;
+        }
+
+        function trazarRectanguloRedondeado(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
+        // Descargar en PNG de ultra-alta definición usando las 2 imágenes separadas (567x345 y 579x352)
+        async function descargarCredencialPng() {
+            const btn = document.getElementById("btnDescargarPng");
+            const matriculaTxt = document.getElementById("credMatricula").textContent.trim().replace(/\s+/g, "_");
+
+            try {
+                btn.disabled = true;
+
+                if (!imgFrente.complete) {
+                    await new Promise((res, rej) => { imgFrente.onload = res; imgFrente.onerror = rej; });
+                }
+                if (!imgReverso.complete) {
+                    await new Promise((res, rej) => { imgReverso.onload = res; imgReverso.onerror = rej; });
+                }
+
+                const scale = 3;
+                const totalW = 567 + 579; // 1146
+                const totalH = 352;
+                const outCanvas = document.createElement("canvas");
+                outCanvas.width = totalW * scale;
+                outCanvas.height = totalH * scale;
+                const ctx = outCanvas.getContext("2d");
+
+                ctx.scale(scale, scale);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, totalW, totalH);
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = "high";
+
+                // 1. Dibujar Frente separado (567x345) y Reverso separado (579x352)
+                ctx.drawImage(imgFrente, 0, 0, 567, 345);
+                ctx.drawImage(imgReverso, 567, 0, 579, 352);
+
+                // 2. Si hay foto cargada, dibujarla en el recuadro del Frente (x=356, y=17, w=195, h=273)
+                if (fotoOriginalObj) {
+                    const fotoCanvas = document.getElementById("canvasFotoCredencial");
+                    ctx.save();
+                    trazarRectanguloRedondeado(ctx, 356, 17, 195, 273, 32);
+                    ctx.clip();
+                    ctx.drawImage(fotoCanvas, 356, 17, 195, 273);
+                    ctx.restore();
+                }
+
+                // 3. Dibujar textos del Frente
+                ctx.textBaseline = "alphabetic";
+                ctx.fillStyle = "#000000";
+
+                ctx.font = "700 17px Calibri, 'Segoe UI', Arial, sans-serif";
+                const nombre = document.getElementById("credNombre").textContent.trim();
+                const lineasNombre = obtenerLineasNombre(ctx, nombre, 245);
+                lineasNombre.forEach((lin, idx) => {
+                    ctx.fillText(lin, 19, 162 + idx * 26);
+                });
+
+                ctx.font = "800 17.5px Calibri, 'Segoe UI', Arial, sans-serif";
+                const matricula = document.getElementById("credMatricula").textContent.trim();
+                ctx.fillText(matricula, 84, 263);
+
+                // 4. Dibujar los 9 campos del Reverso desplazados +567px en X
+                ctx.font = "500 14.5px Calibri, 'Segoe UI', Arial, sans-serif";
+                ctx.fillStyle = "#111111";
+
+                const camposReverso = [
+                    { id: "credCurp",       y: 46 },
+                    { id: "credDomicilio",  y: 72 },
+                    { id: "credColonia",    y: 98 },
+                    { id: "credMunicipio",  y: 124 },
+                    { id: "credCp",         y: 150 },
+                    { id: "credEstado",     y: 176 },
+                    { id: "credTelefono",   y: 202 },
+                    { id: "credExpedicion", y: 232 },
+                    { id: "credVigencia",   y: 256 }
+                ];
+
+                camposReverso.forEach(c => {
+                    const texto = document.getElementById(c.id).textContent.trim();
+                    ctx.fillText(texto, 567 + 114, c.y);
+                });
+
+                const link = document.createElement("a");
+                link.download = `Credencial_CPC_${matriculaTxt}.png`;
+                link.href = outCanvas.toDataURL("image/png");
+                link.click();
+            } catch (e) {
+                alert("Error al generar la imagen PNG. Puedes usar el botón Imprimir.");
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function imagenABase64(imgElem) {
+            const c = document.createElement("canvas");
+            c.width = imgElem.naturalWidth;
+            c.height = imgElem.naturalHeight;
+            c.getContext("2d").drawImage(imgElem, 0, 0);
+            return c.toDataURL("image/png");
+        }
+
+        function escaparXml(str) {
+            return (str || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&apos;");
+        }
+
+        // Generar y descargar archivo .SVG vectorial con las 2 imágenes separadas incrustadas y textos 100% vectoriales
+        async function descargarCredencialSvg() {
+            const matriculaTxt = document.getElementById("credMatricula").textContent.trim().replace(/\s+/g, "_");
+
+            if (!imgFrente.complete) {
+                await new Promise((res, rej) => { imgFrente.onload = res; imgFrente.onerror = rej; });
+            }
+            if (!imgReverso.complete) {
+                await new Promise((res, rej) => { imgReverso.onload = res; imgReverso.onerror = rej; });
+            }
+
+            const base64Frente = imagenABase64(imgFrente);
+            const base64Reverso = imagenABase64(imgReverso);
+
+            let fotoSvgBloque = "";
+            if (fotoOriginalObj) {
+                const fotoDataUrl = document.getElementById("canvasFotoCredencial").toDataURL("image/png");
+                fotoSvgBloque = `
+    <defs>
+        <clipPath id="clipFoto">
+            <rect x="356" y="17" width="195" height="273" rx="32" ry="32" />
+        </clipPath>
+    </defs>
+    <image href="${fotoDataUrl}" x="356" y="17" width="195" height="273" clip-path="url(#clipFoto)" />`;
+            }
+
+            // Medir líneas del nombre
+            const tempCtx = document.createElement("canvas").getContext("2d");
+            tempCtx.font = "700 17px Calibri, Segoe UI, Arial, sans-serif";
+            const nombre = document.getElementById("credNombre").textContent.trim();
+            const lineasNombre = obtenerLineasNombre(tempCtx, nombre, 245);
+            const nombreSvg = lineasNombre.map((lin, idx) =>
+                `<text x="19" y="${162 + idx * 26}" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="17" font-weight="700" fill="#000000">${escaparXml(lin)}</text>`
+            ).join("\n    ");
+
+            const matricula = escaparXml(document.getElementById("credMatricula").textContent.trim());
+            const camposReverso = [
+                { id: "credCurp",       y: 46 },
+                { id: "credDomicilio",  y: 72 },
+                { id: "credColonia",    y: 98 },
+                { id: "credMunicipio",  y: 124 },
+                { id: "credCp",         y: 150 },
+                { id: "credEstado",     y: 176 },
+                { id: "credTelefono",   y: 202 },
+                { id: "credExpedicion", y: 232 },
+                { id: "credVigencia",   y: 256 }
+            ];
+
+            const reversoSvg = camposReverso.map(c => {
+                const val = escaparXml(document.getElementById(c.id).textContent.trim());
+                return `<text x="${567 + 114}" y="${c.y}" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="14.5" font-weight="500" letter-spacing="0.3" fill="#111111">${val}</text>`;
+            }).join("\n    ");
+
+            const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1146 352" width="1146" height="352">
+    <rect width="1146" height="352" fill="#ffffff" />
+    <!-- Plantillas Separadas Frente (567x345) y Reverso (579x352) -->
+    <image href="${base64Frente}" x="0" y="0" width="567" height="345" />
+    <image href="${base64Reverso}" x="567" y="0" width="579" height="352" />${fotoSvgBloque}
+    <!-- Textos Vectoriales Frente -->
+    ${nombreSvg}
+    <text x="84" y="263" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="17.5" font-weight="800" fill="#000000">${matricula}</text>
+    <!-- Textos Vectoriales Reverso -->
+    ${reversoSvg}
+</svg>`;
+
+            const blob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.download = `Credencial_CPC_${matriculaTxt}.svg`;
+            link.href = url;
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            inicializarFechasPorDefecto();
+            if (initAlumnoId !== null) {
+                cargarCredencialAlumno(initAlumnoId);
+            } else if (initMatriculaStr) {
+                buscarParaCredencial();
+            }
+        });
+    </script>
+}

@@ -65,25 +65,22 @@ namespace ControlEscolarWeb.Controllers
             }
             return View();
         }
+
+        public IActionResult Credencial(int? id, string? matricula)
+        {
+            if (Request.Cookies["Auth"] != "true")
+            {
+                return RedirectToAction("Index");
+            }
+            ViewBag.AlumnoId = id;
+            ViewBag.Matricula = matricula;
+            return View();
+        }
         [HttpGet]
         public async Task<IActionResult> SeedData()
         {
-            var garcias = new List<Alumno>
-            {
-                new Alumno { NombreCompleto = "Juan García Pérez", Matricula = "10001", Genero = "Masculino", Estatus = "ACTIVO", FechaRegistro = DateTime.Now },
-                new Alumno { NombreCompleto = "María García López", Matricula = "10002", Genero = "Femenino", Estatus = "ACTIVO", FechaRegistro = DateTime.Now },
-                new Alumno { NombreCompleto = "Pedro García Ramírez", Matricula = "10003", Genero = "Masculino", Estatus = "ACTIVO", FechaRegistro = DateTime.Now }
-            };
-
-            foreach(var g in garcias)
-            {
-                if (!await _context.Alumnos.AnyAsync(a => a.Matricula == g.Matricula))
-                {
-                    _context.Alumnos.Add(g);
-                }
-            }
-            await _context.SaveChangesAsync();
-            return Content("Datos de prueba (García) insertados correctamente.");
+            await DbInitializer.SeedAsync(_context);
+            return Content("11 alumnos de prueba con todos sus datos (CURP, domicilio, contacto, matrícula CPC y 8 módulos de calificaciones) insertados/actualizados correctamente.");
         }
         // Endpoint GET: api de búsqueda
         [HttpGet]

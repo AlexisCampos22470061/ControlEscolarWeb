@@ -23,6 +23,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     context.Database.EnsureCreated();
+    await DbInitializer.SeedAsync(context);
 }
 
 if (!app.Environment.IsDevelopment())

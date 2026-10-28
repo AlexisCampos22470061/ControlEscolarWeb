@@ -12,6 +12,11 @@
                 <p class="text-xs text-slate-500">Ingresa la matrícula del alumno o su nombre/apellido.</p>
             </div>
             <div class="flex gap-2">
+                <a asp-controller="Home" asp-action="Credencial"
+                   class="inline-flex items-center gap-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold px-3 py-2 rounded-xl transition shadow-sm">
+                    <i class="fa-solid fa-id-card text-xs"></i>
+                    <span>Credenciales</span>
+                </a>
                 <a asp-controller="Home" asp-action="Bienvenida"
                    class="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition shadow-sm">
                     <i class="fa-solid fa-house text-xs"></i>
@@ -70,6 +75,10 @@
                 <p class="text-sm text-slate-500 font-mono mt-0.5" id="txtMatricula">-</p>
             </div>
             <div class="flex items-center gap-6">
+                <a id="btnIrCredencial" href="/Home/Credencial" class="inline-flex items-center gap-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-sm">
+                    <i class="fa-solid fa-id-card"></i>
+                    <span>Generar Credencial</span>
+                </a>
                 <div class="text-center">
                     <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Promedio General</p>
                     <span class="text-3xl font-black text-indigo-900" id="txtPromedio">-</span>
@@ -352,6 +361,10 @@
         const al = data.alumno;
         document.getElementById("txtNombreCompleto").textContent = al.nombreCompleto;
         document.getElementById("txtMatricula").textContent = al.matricula ? `Matrícula: ${al.matricula}` : "Matrícula en trámite";
+        const btnCred = document.getElementById("btnIrCredencial");
+        if (btnCred) {
+            btnCred.href = `/Home/Credencial?id=${al.id}`;
+        }
         
         // Identificación
         document.getElementById("txtCurp").textContent = al.curp || "No registrada";

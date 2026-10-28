@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 579 352" width="579" height="352">
+  <rect width="579" height="352" fill="#fbfbfb" />
+  <!-- Líneas curveadas vectoriales de fondo -->
+  <g>
+    <path d="M 0,-100 C 180,-140 380,-50 579,-95" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,-82 C 180,-122 380,-32 579,-77" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,-64 C 180,-104 380,-14 579,-59" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,-46 C 180,-86 380,4 579,-41" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,-28 C 180,-68 380,22 579,-23" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,-10 C 180,-50 380,40 579,-5" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,8 C 180,-32 380,58 579,13" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,26 C 180,-14 380,76 579,31" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,44 C 180,4 380,94 579,49" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,62 C 180,22 380,112 579,67" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,80 C 180,40 380,130 579,85" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,98 C 180,58 380,148 579,103" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,116 C 180,76 380,166 579,121" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,134 C 180,94 380,184 579,139" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,152 C 180,112 380,202 579,157" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,170 C 180,130 380,220 579,175" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,188 C 180,148 380,238 579,193" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,206 C 180,166 380,256 579,211" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,224 C 180,184 380,274 579,229" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,242 C 180,202 380,292 579,247" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,260 C 180,220 380,310 579,265" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,278 C 180,238 380,328 579,283" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,296 C 180,256 380,346 579,301" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,314 C 180,274 380,364 579,319" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,332 C 180,292 380,382 579,337" fill="none" stroke="#ececec" stroke-width="1.3" />
+    <path d="M 0,350 C 180,310 380,400 579,355" fill="none" stroke="#ececec" stroke-width="1.3" />
+  </g>
+
+  <!-- Logo CENEVAL Superior Derecho -->
+  <image href="data:image/png;base64,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" x="500" y="10" width="70" height="75" />
+
+  <!-- Etiquetas de Datos del Alumno (100% Vectoriales, alineadas en X=106) -->
+  <g font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="16" font-weight="400" fill="#222222" text-anchor="end">
+    <text x="106" y="46">CURP:</text>
+    <text x="106" y="72">Domicilio:</text>
+    <text x="106" y="98">Colonia:</text>
+    <text x="106" y="124">Municipio:</text>
+    <text x="106" y="150">C.P.</text>
+    <text x="106" y="176">Estado:</text>
+    <text x="106" y="202">Teléfono:</text>
+    <text x="106" y="232">Expedición:</text>
+    <text x="106" y="256">Vigencia:</text>
+  </g>
+
+  <!-- Áreas de Firma Derecha (100% Vectoriales) -->
+  <text x="458" y="131" text-anchor="middle" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="16.5" font-weight="800" fill="#222222">Estudiante</text>
+  <text x="462" y="241" text-anchor="middle" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="16.5" font-weight="800" fill="#222222">Lic. Rubí Campos Noceda</text>
+  <text x="462" y="264" text-anchor="middle" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="15.5" font-weight="400" fill="#333333">Directora</text>
+
+  <!-- Barras Inferiores Naranja y Gris Carbón (Vectoriales) -->
+  <polygon points="0,278 324,278 348,327 0,327" fill="#f28c18" />
+  <polygon points="340,278 579,278 579,327 364,327" fill="#323232" />
+
+  <!-- Textos en Barra Naranja Inferior -->
+  <text x="164" y="298" text-anchor="middle" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="16.5" font-weight="800" fill="#222222">colegioprofesionalcampeche.edu.mx</text>
+  <text x="206" y="319" text-anchor="middle" font-family="Calibri, 'Segoe UI', Arial, sans-serif" font-size="14" font-weight="800" fill="#ffffff">SEP/DGAIR/RS/CPD/004/2021</text>
+
+  <!-- 5 Iconos Vectoriales en Barra Gris Carbón Inferior -->
+  <g transform="translate(366, 286)">
+    <!-- 1. Correo -->
+    <circle cx="19" cy="17" r="16" fill="#242424" />
+    <rect x="10" y="11" width="18" height="12" rx="1.5" fill="#ffffff" />
+    <polyline points="10,11 19,18 28,11" fill="none" stroke="#242424" stroke-width="1.6" />
+
+    <!-- 2. Usuario -->
+    <circle cx="60" cy="17" r="16" fill="#242424" />
+    <circle cx="60" cy="13" r="3.8" fill="#ffffff" />
+    <path d="M53,24 C53,19.8 67,19.8 67,24 Z" fill="#ffffff" />
+
+    <!-- 3. Teléfono Móvil -->
+    <circle cx="101" cy="17" r="16" fill="#242424" />
+    <rect x="96" y="8" width="10" height="18" rx="1.8" fill="none" stroke="#ffffff" stroke-width="1.8" />
+    <circle cx="101" cy="23" r="1" fill="#ffffff" />
+
+    <!-- 4. Sitio Web / Globo -->
+    <circle cx="142" cy="17" r="16" fill="#242424" />
+    <circle cx="142" cy="17" r="8.5" fill="none" stroke="#ffffff" stroke-width="1.5" />
+    <ellipse cx="142" cy="17" rx="4.2" ry="8.5" fill="none" stroke="#ffffff" stroke-width="1.3" />
+    <line x1="133.5" y1="17" x2="150.5" y2="17" stroke="#ffffff" stroke-width="1.3" />
+
+    <!-- 5. Ubicación -->
+    <circle cx="183" cy="17" r="16" fill="#242424" />
+    <path d="M183,9 C179.5,9 177,11.6 177,15 C177,19.2 183,24.5 183,24.5 C183,24.5 189,19.2 189,15 C189,11.6 186.5,9 183,9 Z" fill="none" stroke="#ffffff" stroke-width="1.8" />
+    <circle cx="183" cy="14.8" r="2" fill="#ffffff" />
+  </g>
+</svg>
